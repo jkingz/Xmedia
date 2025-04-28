@@ -1,7 +1,10 @@
 import COLORS from '@/constants/theme';
+import { api } from '@/convex/_generated/api';
 import { styles } from '@/styles/create.styles';
 import { useUser } from '@clerk/clerk-expo';
 import Ionicons from '@expo/vector-icons/Ionicons';
+import { useMutation } from 'convex/react';
+import * as FileSystem from 'expo-file-system';
 import { Image } from 'expo-image';
 import * as ImagePicker from 'expo-image-picker';
 import { useRouter } from 'expo-router';
@@ -22,6 +25,9 @@ const createScreen = () => {
   const [caption, setCaption] = React.useState('');
   const [selectedImage, setSelectedImage] = React.useState<string | null>(null);
   const [isSharing, setIsSharing] = React.useState(false);
+
+  const generateUploadUrl = useMutation(api.posts.generateUploadUrl);
+  const createPost = useMutation(api.posts.createPost);
 
   const pickImage = async () => {
     console.log('Image picker initiated');
@@ -69,6 +75,37 @@ const createScreen = () => {
 
   const handleShare = async () => {
     console.log('Share button pressed');
+    // check if selectedImage is null
+    if (!selectedImage) return;
+
+    try {
+      setIsSharing(true);
+      // Implement share logic here
+      const uploadUrl = await generateUploadUrl();
+      console.log('Upload URL:', uploadUrl);
+      const uploadResult = await FileSystem.uploadAsync(
+        uploadUrl,
+        selectedImage,
+        {
+          httpMethod: 'POST',
+          mimeType: 'image/jpeg',
+          uploadType: FileSystem.FileSystemUploadType.BINARY_CONTENT,
+        },
+      );
+      // check updload result
+      if (uploadResult.status !== 200) throw new Error('Upload failed');
+
+      const { storageId } = JSON.parse(uploadResult.body);
+
+      // call create post mutation
+      const post = await createPost({ storageId, caption });
+      console.log('Post created:', post);
+      router.push('/(tabs)');
+    } catch (error) {
+      console.error('Error sharing:', error);
+    } finally {
+      setIsSharing(false);
+    }
   };
 
   return (
