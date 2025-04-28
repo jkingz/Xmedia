@@ -18,6 +18,7 @@ export default function Login() {
     try {
       const { createdSessionId, setActive } = await startSSOFlow({
         strategy: 'oauth_google',
+        redirectUrl: 'xmedia://clerk-redirect',
       });
       if (setActive && createdSessionId) {
         setActive({ session: createdSessionId });
