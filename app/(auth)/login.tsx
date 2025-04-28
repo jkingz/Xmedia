@@ -18,11 +18,10 @@ export default function Login() {
     try {
       const { createdSessionId, setActive } = await startSSOFlow({
         strategy: 'oauth_google',
-        redirectUrl: 'xmedia://clerk-redirect',
       });
       if (setActive && createdSessionId) {
         setActive({ session: createdSessionId });
-        router.push('/(tabs)');
+        router.replace('/(tabs)');
       }
     } catch (error) {
       console.error('Google sign-in failed:', error);
