@@ -3,14 +3,18 @@ import { styles } from '@/styles/auth.styles';
 import { useSSO } from '@clerk/clerk-expo';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { useRouter } from 'expo-router';
+import { useState } from 'react';
 import { Image, Text, TouchableOpacity, View } from 'react-native';
 
-export default function login() {
-  const { startSSOFlow } = useSSO();
+export default function Login() {
   const router = useRouter();
+  const { startSSOFlow } = useSSO();
+
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleGoogleSignIn = async () => {
-    console.log('Google hhh In');
+    setIsLoading(true);
+    console.log('Google sign in initiated');
     try {
       const { createdSessionId, setActive } = await startSSOFlow({
         strategy: 'oauth_google',
@@ -19,17 +23,21 @@ export default function login() {
         setActive({ session: createdSessionId });
         router.push('/(tabs)');
       }
-    } catch (error) {}
+    } catch (error) {
+      console.error('Google sign-in failed:', error);
+    } finally {
+      setIsLoading(false);
+    }
   };
   return (
     <View className="h-full w-full flex-grow-0 items-center bg-black py-20">
       <View className="flex items-center">
         <View>
-          <Ionicons name="heart" size={42} color={COLORS.primary}></Ionicons>
+          <Ionicons name="diamond" size={42} color={COLORS.primary}></Ionicons>
         </View>
         <Text className="text-green-500 font-medium text-2xl py-2">Login</Text>
         <Text className="text-green-500 font-medium text-xl">
-          Welcome to Xmedia JKINGZ
+          Welcome to Xmedia
         </Text>
       </View>
       <View className="pt-20">
@@ -44,6 +52,9 @@ export default function login() {
           onPress={handleGoogleSignIn}
           style={styles.googleButton}
           activeOpacity={0.8}
+          accessible={true}
+          accessibilityLabel="Sign in with Google"
+          accessibilityRole="button"
         >
           <View style={styles.googleIconContainer}>
             <Ionicons
