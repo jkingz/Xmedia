@@ -1,20 +1,22 @@
 import { useAuth } from '@clerk/clerk-expo';
-import { Stack, useRouter, useSegments } from 'expo-router';
-import React from 'react';
+import { Slot, useRouter, useSegments } from 'expo-router';
+import { useEffect } from 'react';
 
 const AppLandingLayout = () => {
   const { isLoaded, isSignedIn } = useAuth();
   const segments = useSegments();
   const router = useRouter();
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (!isLoaded) return;
-    const isAuthScreen = segments[0] === '(auth)';
-    if (!isSignedIn && !isAuthScreen) router.replace('/(auth)/login');
-    else if (isSignedIn && isAuthScreen) router.replace('/(tabs)');
-  }, [isLoaded, segments, isSignedIn]);
 
-  return <Stack screenOptions={{ headerShown: false }}></Stack>;
+    const inAuthScreen = segments[0] === '(auth)';
+
+    if (!isSignedIn && !inAuthScreen) router.replace('/(auth)/login');
+    else if (isSignedIn && inAuthScreen) router.replace('/(tabs)');
+  }, [isLoaded, isSignedIn, segments, router]);
+
+  return <Slot />;
 };
 
 export default AppLandingLayout;
