@@ -1,5 +1,5 @@
 import { v } from 'convex/values';
-import { mutation } from './_generated/server';
+import { mutation, query } from './_generated/server';
 import { getAuthenticatedUser } from './users';
 
 export const generateUploadUrl = mutation(async (ctx) => {
@@ -43,7 +43,7 @@ export const createPost = mutation({
   },
 });
 
-export const feedPosts = mutation({
+export const feedPosts = query({
   args: {},
   handler: async (ctx, args) => {
     const currentUser = await getAuthenticatedUser(ctx);
