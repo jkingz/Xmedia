@@ -1,16 +1,21 @@
+import { styles } from '@/styles/feed.styles';
 import { useAuth } from '@clerk/clerk-expo';
+import Ionicons from '@expo/vector-icons/Ionicons';
+import { useRouter } from 'expo-router';
 import React from 'react';
-import { Text, TouchableOpacity } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { Text, TouchableOpacity, View } from 'react-native';
 
 const App = () => {
   const { signOut } = useAuth();
   return (
-    <SafeAreaView className="mx-auto">
-      <TouchableOpacity  className="color-white" onPress={() => signOut()}>
-        <Text className="font-bold my-2 mx-2 text-xl border border-red-400 rounded-xl ">SignOut</Text>
-      </TouchableOpacity>
-    </SafeAreaView>
+    <View style={styles.container}>
+      <View style={styles.header}>
+        <Text style={styles.headerTitle}>Xmedia</Text>
+        <TouchableOpacity onPress={() => signOut()}>
+          <Ionicons name="log-out-outline" size={24} color="white" />
+        </TouchableOpacity>
+      </View>
+    </View>
   );
 };
 
