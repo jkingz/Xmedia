@@ -12,10 +12,10 @@ type StoryProps = {
 
 const Story = ({ story }: { story: StoryProps }) => {
   return (
-    <TouchableOpacity style={styles.storyWrapper}>
+    <TouchableOpacity style={styles.storyWrapper} className='pb-8'>
       <View style={[styles.storyRing, !story.hasStory && styles.noStory]}>
         <Image source={{ uri: story.avatar }} style={styles.storyAvatar} />
-        <Text style={styles.storyUsername}>{story.username}</Text>
+        <Text style={styles.storyUsername} className='pt-2'>{story.username}</Text>
       </View>
     </TouchableOpacity>
   );
