@@ -57,7 +57,7 @@ export default defineSchema({
     senderId: v.id('users'),
     type: v.union(v.literal('follow'), v.literal('like'), v.literal('comment')),
     postId: v.id('posts'),
-    commentId: v.id('comments'),
+    commentId: v.optional(v.id('comments')),
   }).index('by_receiver', ['receiverId']),
 
   // Bookmarks table

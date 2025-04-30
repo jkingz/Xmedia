@@ -1,4 +1,4 @@
-import { v } from 'convex/values';
+import { ConvexError, v } from 'convex/values';
 import { mutation, query } from './_generated/server';
 import { getAuthenticatedUser } from './users';
 
@@ -91,7 +91,7 @@ export const feedPosts = query({
 
 export const toggleLiked = mutation({
   args: {
-    postId: v.id("posts"),
+    postId: v.id('posts'),
   },
   handler: async (ctx, args) => {
     const currentUser = await getAuthenticatedUser(ctx);
@@ -108,8 +108,7 @@ export const toggleLiked = mutation({
     if (existingLike) {
       await ctx.db.delete(existingLike._id);
       await ctx.db.patch(args.postId, {
-        likes:
-          post.likes - 1,
+        likes: post.likes - 1,
       });
       return false;
     } else {
@@ -118,8 +117,7 @@ export const toggleLiked = mutation({
         postId: args.postId,
       });
       await ctx.db.patch(args.postId, {
-        likes:
-          post.likes + 1,
+        likes: post.likes + 1,
       });
 
       // if it is not my post create notification
@@ -127,12 +125,27 @@ export const toggleLiked = mutation({
         await ctx.db.insert('notifications', {
           receiverId: post.userId,
           senderId: currentUser._id,
-          commentId: null,
           type: 'like',
           postId: args.postId,
         });
       }
       return true;
     }
+  },
+});
+
+export const deletePost = mutation({
+  args: {
+    postId: v.id('posts'),
+  },
+  handler: async (ctx, args) => {
+    const currentUser = await getAuthenticatedUser(ctx);
+    const post = await ctx.db.get(args.postId);
+    console.log(post);
+    if (!post) throw Error('Post not found');
+
+    if (currentUser._id !== post.userId) throw new ConvexError('Unauthorized');
+
+    await ctx.db.delete(args.postId);
   },
 });
