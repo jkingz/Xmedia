@@ -1,46 +1,55 @@
 import COLORS from '@/constants/theme';
 import { api } from '@/convex/_generated/api';
+import { Id } from '@/convex/_generated/dataModel';
 import { styles } from '@/styles/feed.styles';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { useMutation } from 'convex/react';
 import { Image } from 'expo-image';
 import { Link } from 'expo-router';
 import { useState } from 'react';
-import { View, Text, TouchableOpacity } from 'react-native';
+import { Text, TouchableOpacity, View } from 'react-native';
 
 // post type
 type PostProps = {
   post: {
-    _id: Id<"posts">,
-    imageUrl?: string,
-    caption?: string,
-    likes: number,
-    comments: number,
-    _creationTime: number,
-    isLiked: boolean,
-    isBookmarked: boolean,
+    _id: Id<'posts'>;
+    imageUrl?: string;
+    caption?: string;
+    likes: number;
+    comments: number;
+    _creationTime: number;
+    isLiked: boolean;
+    isBookmarked: boolean;
     author: {
-      _id: string
-      username: string,
-      image: string,
-    }
-  }
+      _id: string;
+      username: string;
+      image: string;
+    };
+  };
 };
 
 const Posts = ({ post }: PostProps) => {
-  const [isLiked, setIsLiked] = useState(post.isLiked)
-  const [likesCount, setLikesCount] = useState(post.likes)
+  const [isLiked, setIsLiked] = useState(post.isLiked);
+  const [likesCount, setLikesCount] = useState(post.likes);
 
-  const toggleLike = useMutation(api.posts.toggleLiked)
+  const toggleLike = useMutation(api.posts.toggleLiked);
+  const deletePost = useMutation(api.posts.deletePost);
 
   const handleLike = async () => {
     try {
-      // TODO: Implement like functionality
-      const newIsLiked = await toggleLike({ postId: post._id })
-      setIsLiked(newIsLiked)
-      setLikesCount((prev) => newIsLiked ? prev + 1 : prev - 1)
+      const newIsLiked = await toggleLike({ postId: post._id });
+      setIsLiked(newIsLiked);
+      setLikesCount((prev) => (newIsLiked ? prev + 1 : prev - 1));
     } catch (error) {
-      console.error(error)
+      console.error(error);
+    }
+  };
+
+  const handleDelete = async () => {
+    try {
+      await deletePost({ postId: post._id });
+    } catch (error) {
+      console.error(error);
     }
   };
 
@@ -52,7 +61,7 @@ const Posts = ({ post }: PostProps) => {
             <Image
               source={post.author.image}
               style={styles.postAvatar}
-              contentFit='cover'
+              contentFit="cover"
               transition={200}
               cachePolicy={'memory-disk'}
             />
@@ -60,7 +69,7 @@ const Posts = ({ post }: PostProps) => {
           </TouchableOpacity>
         </Link>
 
-        <TouchableOpacity>
+        <TouchableOpacity onPress={() => handleDelete()}>
           <Ionicons name="trash-outline" size={24} color={COLORS.primary} />
         </TouchableOpacity>
       </View>
@@ -68,7 +77,7 @@ const Posts = ({ post }: PostProps) => {
       <Image
         source={post.imageUrl}
         style={styles.postImage}
-        contentFit='cover'
+        contentFit="cover"
         transition={200}
         cachePolicy={'memory-disk'}
       />
@@ -76,10 +85,18 @@ const Posts = ({ post }: PostProps) => {
       <View style={styles.postActions}>
         <View style={styles.postActionsLeft}>
           <TouchableOpacity onPress={() => handleLike()}>
-            <Ionicons name={isLiked ? 'heart' : 'heart-outline'} size={24} color={isLiked ? COLORS.primary : COLORS.white} />
+            <Ionicons
+              name={isLiked ? 'heart' : 'heart-outline'}
+              size={24}
+              color={isLiked ? COLORS.primary : COLORS.white}
+            />
           </TouchableOpacity>
-          <TouchableOpacity >
-            <Ionicons name="chatbubble-outline" size={22} color={COLORS.white} />
+          <TouchableOpacity>
+            <Ionicons
+              name="chatbubble-outline"
+              size={22}
+              color={COLORS.white}
+            />
           </TouchableOpacity>
         </View>
         <TouchableOpacity>
@@ -88,7 +105,11 @@ const Posts = ({ post }: PostProps) => {
       </View>
       {/* POST INFO */}
       <View style={styles.postInfo}>
-        <Text style={styles.likesText}>{likesCount > 0 ? `${likesCount.toLocaleString()} likes` : 'Be the first to like this post!'}</Text>
+        <Text style={styles.likesText}>
+          {likesCount > 0
+            ? `${likesCount.toLocaleString()} likes`
+            : 'Be the first to like this post!'}
+        </Text>
         {post.caption && (
           <View style={styles.captionContainer}>
             <Text style={styles.captionUsername}>{post.author.username}</Text>
@@ -100,7 +121,7 @@ const Posts = ({ post }: PostProps) => {
         </TouchableOpacity>
         <Text style={styles.timeAgo}>2 minutes ago</Text>
       </View>
-    </View >
+    </View>
   );
 };
 
