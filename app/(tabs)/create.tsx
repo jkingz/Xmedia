@@ -74,7 +74,6 @@ const createScreen = () => {
   }
 
   const handleShare = async () => {
-    console.log('Share button pressed');
     // check if selectedImage is null
     if (!selectedImage) return;
 
@@ -99,8 +98,9 @@ const createScreen = () => {
 
       // call create post mutation
       const post = await createPost({ storageId, caption });
-      console.log('Post created:', post);
-      router.push('/(tabs)');
+      // navigate to home screen
+      router.replace('/(tabs)');
+      return post;
     } catch (error) {
       console.error('Error sharing:', error);
     } finally {
