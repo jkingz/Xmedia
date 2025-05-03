@@ -37,7 +37,6 @@ export const addComment = mutation({
   },
 });
 
-
 export const getComments = query({
   args: {
     postId: v.id('posts'),
@@ -48,18 +47,18 @@ export const getComments = query({
       .withIndex('by_post', (q) => q.eq('postId', args.postId))
       .collect();
 
-      const commentsWithInfo = await Promise.all(
-        comments.map(async (comment) => {
-          const user = await ctx.db.get(comment.userId);
-          return {
-            ...comment,
-            user: {
-              name: user?.fullname,
-              image: user?.image,
-            },
-          };
-        })
-      );
-      return commentsWithInfo;
+    const commentsWithInfo = await Promise.all(
+      comments.map(async (comment) => {
+        const user = await ctx.db.get(comment.userId);
+        return {
+          ...comment,
+          user: {
+            fullname: user?.fullname,
+            image: user?.image,
+          },
+        };
+      }),
+    );
+    return commentsWithInfo;
   },
 });
