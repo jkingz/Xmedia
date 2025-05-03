@@ -93,11 +93,14 @@ const createScreen = () => {
       );
       // check updload result
       if (uploadResult.status !== 200) throw new Error('Upload failed');
-
       const { storageId } = JSON.parse(uploadResult.body);
-
       // call create post mutation
       const post = await createPost({ storageId, caption });
+
+      // clear the state
+      setSelectedImage(null);
+      setCaption('');
+      
       // navigate to home screen
       router.replace('/(tabs)');
       return post;

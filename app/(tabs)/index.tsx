@@ -16,7 +16,12 @@ const App = () => {
   const posts = useQuery(api.posts.feedPosts);
   console.log(posts);
   if (posts === undefined) return <Loader />;
-  if (posts.length === 0) return <Text>No posts yet</Text>;
+  if (posts.length === 0)
+    return (
+      <View className="flex-1 justify-center items-center bg-black">
+        <Text className="color-green-500 text-3xl">No posts yet</Text>
+      </View>
+    );
 
   return (
     <View style={styles.container}>

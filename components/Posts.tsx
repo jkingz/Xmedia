@@ -2,8 +2,9 @@ import COLORS from '@/constants/theme';
 import { api } from '@/convex/_generated/api';
 import { Id } from '@/convex/_generated/dataModel';
 import { styles } from '@/styles/feed.styles';
+import { useUser } from '@clerk/clerk-react';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { useMutation } from 'convex/react';
+import { useMutation, useQuery } from 'convex/react';
 import { formatDistanceToNow } from 'date-fns';
 import { Image } from 'expo-image';
 import { Link } from 'expo-router';
@@ -36,6 +37,14 @@ const Posts = ({ post }: PostProps) => {
   const [commentsCount, setCommentsCount] = useState(post.comments);
   const [showComments, setShowComments] = useState(false);
   const [isBookmarked, setIsBookmarked] = useState(post.isBookmarked);
+
+  const { user } = useUser();
+  console.log('User:', user);
+
+  const convexUser = useQuery(
+    api.users.getUserByClerkId,
+    user ? { clerkId: user.id } : 'skip',
+  );
 
   const toggleLike = useMutation(api.posts.toggleLiked);
   const deletePost = useMutation(api.posts.deletePost);
@@ -88,10 +97,19 @@ const Posts = ({ post }: PostProps) => {
             <Text style={styles.postUsername}>{post.author.username}</Text>
           </TouchableOpacity>
         </Link>
-
-        <TouchableOpacity onPress={() => handleDelete()}>
-          <Ionicons name="trash-outline" size={24} color={COLORS.primary} />
-        </TouchableOpacity>
+        {convexUser && convexUser._id === post.author._id ? (
+          <TouchableOpacity onPress={() => handleDelete()}>
+            <Ionicons name="trash-outline" size={24} color={COLORS.primary} />
+          </TouchableOpacity>
+        ) : (
+          <TouchableOpacity>
+            <Ionicons
+              name="ellipsis-horizontal"
+              size={24}
+              color={COLORS.primary}
+            />
+          </TouchableOpacity>
+        )}
       </View>
       {/* post image */}
       <Image
