@@ -8,23 +8,25 @@ import { Link } from 'expo-router';
 import React from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
 
-type NotificationProps = {
+type Notification = {
   notification: {
-    receiverId: string;
-    message: string;
-  };
-  sender: {
-    _id: Id<'users'>;
-    username: string;
-    image: string;
-  };
-  post?: {
-    imageUrl?: string;
-    caption?: string;
+    _id: Id<'notifications'>;
+    sender: {
+      _id: Id<'users'>;
+      username: string;
+      image: string;
+    };
+    type: 'like' | 'follow' | 'comment';
+    comments: string;
+    post: {
+      _id: Id<'posts'>;
+      imageUrl: string;
+    };
+    _creationTime: Date;
   };
 };
 
-const NotificationItem = (notification: any) => {
+const NotificationItem = ({ notification }: Notification) => {
   return (
     <View style={styles.notificationItem}>
       <View style={styles.notificationContent}>
