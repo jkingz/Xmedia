@@ -1,5 +1,5 @@
-import { ClerkProvider } from '@clerk/clerk-expo';
-import { tokenCache } from '@clerk/clerk-expo/token-cache';
+import { tokenCache } from '@/cache';
+import { ClerkLoaded, ClerkProvider } from '@clerk/clerk-expo';
 import { useAuth } from '@clerk/clerk-react';
 import { ConvexReactClient } from 'convex/react';
 import { ConvexProviderWithClerk } from 'convex/react-clerk';
@@ -10,7 +10,7 @@ const convex = new ConvexReactClient(
   { unsavedChangesWarning: false },
 );
 // Import your Publishable Key
-const PUBLISHABLE_KEY = process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY;
+const PUBLISHABLE_KEY = process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY!;
 
 if (!PUBLISHABLE_KEY) {
   throw new Error('Missing Publishable Key');
@@ -19,9 +19,11 @@ if (!PUBLISHABLE_KEY) {
 const CCProviders = ({ children }: { children: React.ReactNode }) => {
   return (
     <ClerkProvider tokenCache={tokenCache} publishableKey={PUBLISHABLE_KEY}>
-      <ConvexProviderWithClerk client={convex} useAuth={useAuth}>
-        {children}
-      </ConvexProviderWithClerk>
+      <ClerkLoaded>
+        <ConvexProviderWithClerk client={convex} useAuth={useAuth}>
+          {children}
+        </ConvexProviderWithClerk>
+      </ClerkLoaded>
     </ClerkProvider>
   );
 };
