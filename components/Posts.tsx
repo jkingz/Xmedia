@@ -35,9 +35,11 @@ const Posts = ({ post }: PostProps) => {
   const [likesCount, setLikesCount] = useState(post.likes);
   const [commentsCount, setCommentsCount] = useState(post.comments);
   const [showComments, setShowComments] = useState(false);
+  const [isBookmarked, setIsBookmarked] = useState(post.isBookmarked);
 
   const toggleLike = useMutation(api.posts.toggleLiked);
   const deletePost = useMutation(api.posts.deletePost);
+  const toggleBookmark = useMutation(api.bookmarks.toggleBookmarked);
 
   const handleLike = async () => {
     try {
@@ -52,6 +54,15 @@ const Posts = ({ post }: PostProps) => {
   const handleDelete = async () => {
     try {
       await deletePost({ postId: post._id });
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const handleBookmark = async () => {
+    try {
+      const newIsBookmarked = await toggleBookmark({ postId: post._id });
+      setIsBookmarked(newIsBookmarked);
     } catch (error) {
       console.error(error);
     }
@@ -108,8 +119,12 @@ const Posts = ({ post }: PostProps) => {
             />
           </TouchableOpacity>
         </View>
-        <TouchableOpacity>
-          <Ionicons name="bookmark-outline" size={24} color={COLORS.white} />
+        <TouchableOpacity onPress={() => handleBookmark()}>
+          <Ionicons
+            name={isBookmarked ? 'bookmark' : 'bookmark-outline'}
+            size={24}
+            color={COLORS.white}
+          />
         </TouchableOpacity>
       </View>
       {/* POST INFO */}
