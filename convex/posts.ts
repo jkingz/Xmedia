@@ -146,6 +146,42 @@ export const deletePost = mutation({
 
     if (currentUser._id !== post.userId) throw new ConvexError('Unauthorized');
 
+    // delete all comments
+    const comments = await ctx.db
+      .query('comments')
+      .withIndex('by_post', (q) => q.eq('postId', args.postId))
+      .collect();
+    for (const comment of comments) {
+      await ctx.db.delete(comment._id);
+    }
+    // delete all likes
+    const likes = await ctx.db
+      .query('likes')
+      .withIndex('by_post', (q) => q.eq('postId', args.postId))
+      .collect();
+    for (const like of likes) {
+      await ctx.db.delete(like._id);
+    }
+    // delete all bookmarks
+    const bookmarks = await ctx.db
+      .query('bookmarks')
+      .withIndex('by_user_and_post', (q) =>
+        q.eq('userId', currentUser._id).eq('postId', post._id),
+      )
+      .collect();
+    for (const bookmark of bookmarks) {
+      await ctx.db.delete(bookmark._id);
+    }
+
+    // delete image
+    await ctx.storage.delete(post.storageId);
+
+    // delete post
     await ctx.db.delete(args.postId);
+    // decrement user's posts by 1
+    await ctx.db.patch(currentUser._id, {
+      posts: Math.max(0, (currentUser.posts || 1) - 1),
+    });
+    return true;
   },
 });
